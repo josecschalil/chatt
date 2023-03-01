@@ -1,46 +1,25 @@
 import Head from "next/head";
-import React from "react";
+import React, { useState } from "react";
 import { IoSend } from 'react-icons/io5';
 import {HiUsers} from 'react-icons/hi'
-interface MessageProps {
-  text: string;
-  sent: boolean;
-}
-const Message: React.FC<MessageProps> = ({ text, sent }) => {
-  if (sent) {
-    return (
-      <>
-        <div className={`flex mb-4 ${sent ? "justify-end" : "justify-start"}`}>
-          <div className="mr-2 shadow-md py-3 px-4 bg-amber-300 rounded-bl-3xl rounded-tl-3xl rounded-tr-xl">
-            {text}
-          </div>
-          <img
-            src="https://source.unsplash.com/vpOeXr5wmR4/600x600"
-            className="object-cover h-8 w-8 rounded-full"
-            alt="Avatar"
-          />
-        </div>
-      </>
-    );
-  } else {
-    return (
-      <>
-        <div className="flex justify-start mb-4">
-          <img
-            src="https://source.unsplash.com/vpOeXr5wmR4/600x600"
-            className="object-cover h-8 w-8 rounded-full"
-            alt=""
-          />
-          <div className="ml-2 py-3 shadow-md px-4 bg-gray-400 rounded-br-3xl rounded-tr-3xl rounded-tl-xl text-white">
-            {text}
-          </div>
-        </div>
-      </>
-    );
-  }
-};
+import Message from "@/components/Message";
+
 
 export default function Home() {
+  const [text, setText] = useState('')
+  
+  const sendMessage = (txt: string) => {
+    console.log(txt)
+    setText('')
+  }
+
+  const handleEnter = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      if (text != '') {
+        sendMessage(text)
+      }
+    }
+  }
   return (
     <main className="max-w-6xl mx-auto h-screen pt-16 relative">
       <Head>
@@ -73,11 +52,14 @@ export default function Home() {
             </div>
             <div className="py-5 flex justify-center gap-2 items-center">
               <input
+                onChange={(e) => setText(e.target.value)}
+                onKeyDown={(e) => handleEnter(e)}
+                value={text}
                 className="w-full h-12 bg-gray-300 py-2 px-3 rounded-xl"
                 type="text"
                 placeholder="Type here..."
               />
-              <button className="bg-amber-300 p-4 rounded shadow-lg hover:shadow-none transition-all duration-500 hover:bg-slate-500 hover:text-white active:bg-amber-300"><IoSend size={22} /></button>
+              <button onClick={() => sendMessage(text)} className="bg-amber-300 p-4 rounded shadow-lg hover:shadow-none transition-all duration-500 hover:bg-slate-500 hover:text-white active:bg-amber-300"><IoSend size={22} /></button>
             </div>
           </div>
         </div>
