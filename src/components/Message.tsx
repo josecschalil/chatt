@@ -14,7 +14,7 @@ const Message: React.FC<MessageProps> = ({ text, sent }) => {
           </div>
           <img
             src="https://source.unsplash.com/vpOeXr5wmR4/600x600"
-            className="object-cover h-8 w-8 rounded-full"
+            className="shadow object-cover h-8 w-8 rounded-full"
             alt="Avatar"
           />
         </div>

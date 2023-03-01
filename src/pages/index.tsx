@@ -1,16 +1,38 @@
 import Head from "next/head";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { IoSend } from "react-icons/io5";
 import { HiUsers } from "react-icons/hi";
 import Message from "@/components/Message";
+import { Socket, io } from "socket.io-client";
+const socket = io();
 
 export default function Home() {
+  useEffect(() => {
+    fetch("/api/socket").finally(() => {
+
+      socket.on("connect", () => {
+        console.log("connect");
+        socket.emit("hello");
+      });
+
+      socket.on("newMessage", (msg) => {
+        console.log(msg);
+      });
+
+      socket.on("a user connected", () => {
+        console.log("a user connected");
+      });
+
+      socket.on("disconnect", () => {
+        console.log("disconnect");
+      });
+    });
+  }, []);
   const [text, setText] = useState("");
   const sendMessage = (txt: string) => {
-    console.log(txt);
+    socket.emit("send", txt);
     setText("");
   };
-
   const handleEnter = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       if (text != "") {
