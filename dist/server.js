@@ -1,13 +1,22 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const express_1 = __importDefault(require("express"));
-const app = (0, express_1.default)();
-const port = 5000;
-app.get('/', (_, res) => {
-    res.status(200).send();
+const express = require("express");
+const app = express();
+const http = require("http");
+const { Server } = require("socket.io");
+const server = http.createServer(app);
+const io = new Server(server);
+app.use(express.static("public"));
+app.get("/", (req, res) => {
+    res.sendFile(__dirname + "/public/index.html");
 });
-app.listen(port, () => console.log(`Running on port ${port}`));
+io.on("connection", (socket) => {
+    console.log("a user connected");
+    socket.on('sendMessage', (msg) => {
+        socket.broadcast.emit('newMessage', msg);
+    });
+});
+app.get("/main.js", (req, res) => {
+    res.sendFile(__dirname + "/public/main.js");
+});
+const PORT = 5000;
+server.listen(PORT, () => console.log(`Running on PORT ${PORT}`));
 //# sourceMappingURL=server.js.map
