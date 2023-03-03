@@ -2,13 +2,14 @@ import React from "react";
 interface MessageProps {
   text: string;
   sent: boolean;
+  idx: string
 }
 
-const Message: React.FC<MessageProps> = ({ text, sent }) => {
+const Message: React.FC<MessageProps> = ({ text, sent, idx }) => {
   if (sent) {
     return (
       <>
-        <div className={`flex mb-4 ${sent ? "justify-end" : "justify-start"}`}>
+        <div key={idx} className={`flex mb-4 ${sent ? "justify-end" : "justify-start"}`}>
           <div className="mr-2 shadow-md py-3 px-4 bg-amber-300 rounded-bl-3xl rounded-tl-3xl rounded-tr-xl">
             {text}
           </div>
@@ -23,7 +24,7 @@ const Message: React.FC<MessageProps> = ({ text, sent }) => {
   } else {
     return (
       <>
-        <div className="flex justify-start mb-4">
+        <div key={idx} className="flex justify-start mb-4">
           <img
             src="https://source.unsplash.com/vpOeXr5wmR4/600x600"
             className="object-cover h-8 w-8 rounded-full"

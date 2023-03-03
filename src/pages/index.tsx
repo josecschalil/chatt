@@ -3,11 +3,35 @@ import React, { useState } from "react";
 import { IoSend } from "react-icons/io5";
 import { HiUsers } from "react-icons/hi";
 import Message from "@/components/Message";
+import { useSockets } from "@/context/socket.context";
+import EVENTS from "@/utils/events";
+
+interface Message {
+  text: string;
+  time: string;
+  username: string;
+}
 
 export default function Home() {
+  const { socket, roomId, username, setMessages, messages, msgs } = useSockets();
   const [text, setText] = useState("");
   const sendMessage = (txt: string) => {
     console.log(txt);
+    socket.emit(EVENTS.CLIENT.SEND_ROOM_MESSAGE, {
+      roomId,
+      message: text,
+      username,
+    });
+    const date = new Date();
+    setMessages([
+      ...(messages as Message[]),
+      {
+        text,
+        time: `${date.getHours()}:${date.getMinutes()}`,
+        username: "You",
+      },
+    ]);
+    console.log(messages)
     setText("");
   };
 
@@ -45,13 +69,10 @@ export default function Home() {
         <div className="bg-white w-5/6 max-h-72 overflow-y-auto rounded-br">
           <div className="w-full px-5 flex flex-col justify-between">
             <div className="flex flex-col mt-5">
-              <Message text="Hello" sent={true} />
-              <Message text="Howdy" sent={false} />
-              <Message text="Hello World" sent={true} />
-              <Message text="Hello World" sent={true} />
-              <Message text="Hey" sent={true} />
-              <Message text="Hey" sent={true} />
-              <Message text="Hey" sent={true} />
+              {msgs?.map((message, idx) => (
+                // <Message sent={true} text={message.text} key={idx} idx={idx.toString()}/>
+                <div key={idx}>{message}</div>
+              ))}
             </div>
           </div>
         </div>

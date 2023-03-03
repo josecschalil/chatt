@@ -24,7 +24,7 @@ function socket({ io }: { io: Server }) {
 
   io.on(EVENTS.connection, (socket: Socket) => {
     logger.info(`User connected ${socket.id}`);
-
+    socket.join('1')
     socket.emit(EVENTS.SERVER.ROOMS, rooms);
 
     /*
@@ -58,7 +58,7 @@ function socket({ io }: { io: Server }) {
       EVENTS.CLIENT.SEND_ROOM_MESSAGE,
       ({ roomId, message, username }) => {
         const date = new Date();
-
+        logger.info('New message' + message)
         socket.to(roomId).emit(EVENTS.SERVER.ROOM_MESSAGE, {
           message,
           username,
