@@ -5,6 +5,7 @@ import { nanoid } from "nanoid";
 
 const EVENTS = {
   connection: "connection",
+  disconnect: 'disconnect',
   CLIENT: {
     CREATE_ROOM: "CREATE_ROOM",
     SEND_ROOM_MESSAGE: "SEND_ROOM_MESSAGE",
@@ -23,9 +24,13 @@ function socket({ io }: { io: Server }) {
   logger.info(`Sockets enabled`);
 
   io.on(EVENTS.connection, (socket: Socket) => {
-    logger.info(`User connected ${socket.id}`);
-    socket.join('1')
+    logger.info(`Client connected ${socket.id}  (${socket.l})`);
     socket.emit(EVENTS.SERVER.ROOMS, rooms);
+    socket.join('1')
+    /**
+     * When a user disconnects
+     */
+    socket.on(EVENTS.disconnect, () => logger.info(`Client disconnected ${socket.id}`))
 
     /*
      * When a user creates a new room
@@ -58,7 +63,7 @@ function socket({ io }: { io: Server }) {
       EVENTS.CLIENT.SEND_ROOM_MESSAGE,
       ({ roomId, message, username }) => {
         const date = new Date();
-        logger.info('New message' + message)
+        logger.info(`New Message from ${username}: ${message}`)
         socket.to(roomId).emit(EVENTS.SERVER.ROOM_MESSAGE, {
           message,
           username,
