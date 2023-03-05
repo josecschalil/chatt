@@ -1,9 +1,9 @@
 import Head from "next/head";
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { IoSend } from "react-icons/io5";
 import { HiUsers } from "react-icons/hi";
-import Message from "@/components/Message";
 import { useSockets } from "@/context/socket.context";
+import Message from "@/components/Message";
 import EVENTS from "@/utils/events";
 
 interface Message {
@@ -13,35 +13,43 @@ interface Message {
 }
 
 export default function Home() {
-  const { socket, roomId, username, setMessages, messages, msgs } = useSockets();
   const [text, setText] = useState("");
-  const sendMessage = (txt: string) => {
-    console.log(txt);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const { socket, roomId, username, setMessages, messages, messageBoxRef, showNew, setShowNew} = useSockets();
+  const sendMessage = () => {
+    const txt = inputRef.current?.value;
+    if (txt === "") {
+      return;
+    }
     socket.emit(EVENTS.CLIENT.SEND_ROOM_MESSAGE, {
       roomId,
       message: text,
       username,
     });
     const date = new Date();
-    setMessages([
-      ...(messages as Message[]),
+    setMessages((prev: Message[]) => [
+      ...prev,
       {
         text,
         time: `${date.getHours()}:${date.getMinutes()}`,
         username: "You",
+        sent: true,
       },
     ]);
-    console.log(messages)
     setText("");
   };
 
   const handleEnter = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       if (text != "") {
-        sendMessage(text);
+        sendMessage();
       }
     }
   };
+
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
   return (
     <main className="max-w-6xl mx-auto h-screen py-16 relative">
       <Head>
@@ -66,12 +74,17 @@ export default function Home() {
             <li>Milan</li>
           </ul>
         </div>
-        <div className="bg-white w-5/6 max-h-72 overflow-y-auto rounded-br">
+        <div ref={messageBoxRef} className="bg-white w-5/6 max-h-72 overflow-y-auto rounded-br relative">
+          {showNew && <div className="absolute bottom-2 w-full text-center bg-amber-400/50 p-2 shadow text-xs text-gray-600/80">New Message</div>}
           <div className="w-full px-5 flex flex-col justify-between">
-            <div className="flex flex-col mt-5">
-              {msgs?.map((message, idx) => (
-                // <Message sent={true} text={message.text} key={idx} idx={idx.toString()}/>
-                <div key={idx}>{message}</div>
+            <div className="flex flex-col my-5">
+              {messages?.map((message, idx) => (
+                <Message
+                  sent={message.sent}
+                  text={message.text}
+                  key={idx}
+                  idx={idx.toString()}
+                />
               ))}
             </div>
           </div>
@@ -79,6 +92,7 @@ export default function Home() {
       </section>
       <section className="py-5 px-4 flex justify-center gap-2 items-center">
         <input
+          ref={inputRef}
           onChange={(e) => setText(e.target.value)}
           onKeyDown={(e) => handleEnter(e)}
           value={text}
@@ -87,7 +101,7 @@ export default function Home() {
           placeholder="Type here..."
         />
         <button
-          onClick={() => sendMessage(text)}
+          onClick={() => sendMessage()}
           className="bg-amber-300 p-4 rounded shadow-lg hover:shadow-none transition-all duration-500 hover:bg-slate-500 hover:text-white active:bg-amber-300"
         >
           <IoSend size={22} />

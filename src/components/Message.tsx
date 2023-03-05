@@ -2,7 +2,7 @@ import React from "react";
 interface MessageProps {
   text: string;
   sent: boolean;
-  idx: string
+  idx: string;
 }
 
 const Message: React.FC<MessageProps> = ({ text, sent, idx }) => {

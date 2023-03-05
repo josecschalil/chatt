@@ -1,13 +1,19 @@
 import EVENTS from "@/utils/events";
-import { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useRef, useState } from "react";
 import { Socket, io } from "socket.io-client";
+
 const socket = io();
 
 export interface Message {
   text: string;
   time: string;
   username: string;
+  sent: boolean;
 }
+
+// interface Props {
+//   messageBoxRef: React.RefObject<HTMLDivElement>,
+// }
 
 interface Context {
   socket: Socket;
@@ -17,7 +23,9 @@ interface Context {
   setMessages: Function;
   roomId?: string;
   rooms: object;
-  msgs: string[]
+  messageBoxRef: React.RefObject<HTMLDivElement>  | null;
+  showNew: Boolean;
+  setShowNew: Function
 }
 
 const SocketContext = createContext<Context>({
@@ -26,32 +34,42 @@ const SocketContext = createContext<Context>({
   setMessages: Function,
   rooms: {},
   messages: [],
-  msgs: []
+  messageBoxRef: null,
+  setShowNew: Function,
+  showNew: false
 });
 
 const SocketProvider = (props: any) => {
   const [username, setUsername] = useState("Milan");
   const [roomId, setRoomId] = useState("1");
   const [rooms, setRooms] = useState({});
-  const [messages, setMessages] = useState([]);
-  const [msgs, setMsgs] = useState<String[]>([]);
-
-//   useEffect(() => {
-//     window.onfocus = function () {
-//       document.title = "Chat app";
-//     };
-//   }, []);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [showNew, setShowNew] = useState(false);
+  const messageBoxRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    window.onfocus = function () {
+      document.title = "Chat app";
+    };
+  }, []);
 
   useEffect(() => {
     socket.on(EVENTS.SERVER.ROOM_MESSAGE, ({ message, username, time }) => {
+      // messageBoxRef.current?.scroll({top: messageBoxRef.current.scrollHeight, behavior: 'smooth'})
+      // setShowNew(true)
+      console.log(messageBoxRef.current?.scrollHeight)
       if (!document.hasFocus()) {
         document.title = "New message...";
       }
-      console.log('before', console.log(msgs))
-      setMsgs((msgs) => [...msgs, message])
-    //   setMessages((messages) => [...messages, {text: message, time, username}])
-      console.log('after', msgs)
+      console.log("before");
+      setMessages((prev) => [
+        ...prev,
+        { text: message, time, username, sent: false },
+      ]);
+      console.log("after: " + messages);
     });
+    return () => {
+      socket.off(EVENTS.SERVER.ROOM_MESSAGE);
+    };
   }, [socket]);
 
   return (
@@ -64,7 +82,9 @@ const SocketProvider = (props: any) => {
         roomId,
         messages,
         setMessages,
-        msgs
+        messageBoxRef,
+        showNew,
+        setShowNew
       }}
       {...props}
     />
