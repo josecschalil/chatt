@@ -24,9 +24,9 @@ function socket({ io }: { io: Server }) {
   logger.info(`Sockets enabled`);
 
   io.on(EVENTS.connection, (socket: Socket) => {
-    logger.info(`Client connected ${socket.id}  (${socket.l})`);
     socket.emit(EVENTS.SERVER.ROOMS, rooms);
     socket.join('1')
+    logger.info(`Client connected ${socket.id}  (${rooms})`);
     /**
      * When a user disconnects
      */

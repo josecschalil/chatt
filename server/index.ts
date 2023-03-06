@@ -5,7 +5,7 @@ import { Server } from "socket.io";
 import next from "next";
 import socket from "./socket";
 
-const port = 8000
+const port = 5000
 const nextApp = next({dev: true});
 const handle = nextApp.getRequestHandler();
 
