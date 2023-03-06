@@ -26,7 +26,7 @@ const Home = () => {
       </section>
       <section className="text-neutral-700 flex justify-between items-center bg-white font-semibold p-4 rounded-b">
         <div>
-          <label className="block">Username</label>
+          <label className="block">Jose C S</label>
           <input
             ref={usernameRef}
             type="text"
